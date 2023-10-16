@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useMemo,
   useState
 } from "react";
 import {faker} from "@faker-js/faker";
@@ -33,26 +34,33 @@ function PostProvider({children}) {
     setPosts([]);
   }
 
-  return <PostContext.Provider value={{
-    posts      : searchedPosts,
-    onClearPost: handleClearPosts,
-    onAddPost  : handleAddPost,
-    searchQuery,
-    setSearchQuery
+  const value = useMemo(() => {
+    return {
+      posts      : searchedPosts,
+      onClearPost: handleClearPosts,
+      onAddPost  : handleAddPost,
+      searchQuery,
+      setSearchQuery
 
-  }}>
-    {children}
-  </PostContext.Provider>;
+    };
+  }, [searchQuery, searchedPosts]);
+
+  return (
+    <PostContext.Provider value={value}>
+      {children}
+    </PostContext.Provider>
+  );
 }
 
 
 function usePosts() {
   const context = useContext(PostContext);
-  if (context === undefined)
-    throw new Error("💁🏼  😡😡️PostContext is used outside of the scope or"
-                    + " PostProvider 💁 😡😡");
+  if (context === undefined) throw new Error("💁🏼  😡😡️PostContext is used outside of the scope or" + " PostProvider 💁 😡😡");
   return useContext(PostContext);
 }
 
 export default PostProvider;
-export {PostContext, usePosts};
+export {
+  PostContext,
+  usePosts
+};
